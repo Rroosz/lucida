@@ -47,27 +47,47 @@
   .row { display: flex; align-items: center; gap: 8px; pointer-events: auto; }
   .top { flex-wrap: wrap; }
   .spacer { flex: 1; }
-  .round { width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--glass); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  /* Liquid glass: vidrio claro con brillo en el borde superior y sombra suave. */
+  .round, .bar, .menu-list, .panel {
+    background: linear-gradient(160deg, rgba(255,255,255,.30), rgba(255,255,255,.07) 45%, rgba(255,255,255,.15));
+    backdrop-filter: blur(18px) saturate(180%); -webkit-backdrop-filter: blur(18px) saturate(180%);
+    border: 1px solid rgba(255,255,255,.30);
+    box-shadow: inset 0 1px 1px rgba(255,255,255,.55), inset 0 -1px 2px rgba(0,0,0,.2), 0 6px 22px rgba(0,0,0,.3);
+  }
+  .round { width: 44px; height: 44px; border-radius: 50%; padding: 0; color: #fff;
            display: grid; place-items: center; cursor: pointer; flex: none; }
   .round svg { width: 21px; height: 21px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
-  .round.on { color: var(--accent); background: var(--glass-strong); }
+  .round.big { width: 54px; height: 54px; }
+  .round.on { color: var(--accent); background: linear-gradient(160deg, rgba(255,148,77,.38), rgba(255,148,77,.12)); border-color: rgba(255,180,130,.55); }
   .round:disabled { opacity: .35; }
   .round:focus-visible, .chip:focus-visible, .pill:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .bottom { flex-direction: column; gap: 12px; align-items: stretch; }
-  .bar { display: flex; align-items: center; gap: 10px; padding: 6px; border-radius: 999px; background: var(--glass); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+  .bar { display: flex; align-items: center; gap: 6px; padding: 5px; border-radius: 999px; }
   .bar input[type=range] { flex: 1; min-width: 0; accent-color: var(--accent); }
   .zoom { align-self: center; }
-  .chip { min-width: 40px; height: 40px; padding: 0 8px; border-radius: 999px; border: 0; background: rgba(0,0,0,.35); font-weight: 700; font-size: 13px; font-variant-numeric: tabular-nums; cursor: pointer; }
-  .chip.on { color: var(--accent); background: rgba(0,0,0,.7); }
+  .chip { min-width: 40px; height: 40px; padding: 0 8px; border-radius: 999px; border: 0; background: transparent; color: #fff; font-weight: 700; font-size: 13px; font-variant-numeric: tabular-nums; cursor: pointer; }
+  .chip.on { color: var(--accent); background: rgba(0,0,0,.35); }
   #zoomFine { width: min(78vw, 360px); }
-  .shutter { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
+  .shutter { display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; }
   .shutter > :first-child { justify-self: start; }
   .shutter > :last-child { justify-self: end; }
-  #rec { width: 76px; height: 76px; border-radius: 50%; border: 4px solid #fff; background: transparent; display: grid; place-items: center; cursor: pointer; }
-  #rec span { width: 60px; height: 60px; border-radius: 30px; background: var(--rec); transition: all .2s; }
-  #rec.on span { width: 28px; height: 28px; border-radius: 6px; }
+  #rec { position: relative; width: 78px; height: 78px; padding: 0; border-radius: 50%; border: 0; background: none; cursor: pointer;
+         box-shadow: inset 0 0 0 4px #fff, 0 6px 22px rgba(0,0,0,.3); align-self: center; }
+  #rec span { position: absolute; left: 50%; top: 50%; width: 62px; height: 62px; border-radius: 31px; background: var(--rec); transform: translate(-50%, -50%); transition: width .2s, height .2s, border-radius .2s; }
+  #rec.on span { width: 28px; height: 28px; border-radius: 7px; }
+
+  /* Botón de imagen: se despliega hacia arriba con ocultar, transparencia y candado. */
+  .dock { position: relative; display: flex; flex-direction: column; align-items: center; }
+  .panel { position: absolute; bottom: 64px; left: 50%; transform: translateX(-50%); width: 54px; padding: 6px 0; border-radius: 27px;
+           display: flex; flex-direction: column; align-items: center; gap: 8px; transform-origin: bottom center;
+           transition: opacity .18s, transform .18s; }
+  .panel.closed { opacity: 0; transform: translateX(-50%) translateY(10px) scale(.92); pointer-events: none; }
+  .panel .round { background: rgba(0,0,0,.18); box-shadow: none; border-color: rgba(255,255,255,.18); }
+  .panel .round.on { background: rgba(255,148,77,.25); }
+  .vslider { position: relative; width: 42px; height: 150px; }
+  .vslider input { position: absolute; left: 50%; top: 50%; width: 150px; margin: 0; transform: translate(-50%, -50%) rotate(-90deg); accent-color: var(--accent); }
   .menu { position: relative; }
-  .menu-list { position: absolute; top: 52px; left: 0; min-width: 190px; padding: 6px; border-radius: 14px; background: var(--glass-strong); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid var(--line); z-index: 5; }
+  .menu-list { position: absolute; top: 52px; left: 0; min-width: 190px; padding: 6px; border-radius: 16px; z-index: 5; }
   .menu-list button { display: flex; width: 100%; gap: 10px; align-items: center; padding: 10px 12px; border: 0; border-radius: 9px; background: none; text-align: left; cursor: pointer; }
   .menu-list button.on { color: var(--accent); }
   .menu-list button:hover { background: rgba(255,255,255,.08); }
@@ -159,22 +179,24 @@
     </div>
     <button class="round needs-img" id="flipBtn" title="Voltear" aria-label="Voltear como espejo"><svg viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M8 7L3 12l5 5V7z"/><path d="M16 7l5 5-5 5V7z"/></svg></button>
     <button class="round needs-img" id="resetBtn" title="Restablecer" aria-label="Restablecer posición"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg></button>
-    <span class="spacer"></span>
-    <button class="round" id="torchBtn" title="Linterna" aria-label="Linterna" hidden><svg viewBox="0 0 24 24"><path d="M7 2h10l-2 6H9z"/><path d="M9 8v12a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2V8"/><path d="M12 13v3"/></svg></button>
   </div>
 
   <div class="row bottom">
-    <div class="bar needs-img">
-      <button class="round" id="eyeBtn" title="Ocultar imagen" aria-label="Ocultar imagen"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
-      <input id="opacity" type="range" min="0.05" max="1" step="0.01" value="0.5" aria-label="Transparencia">
-      <button class="round" id="lockBtn" title="Bloquear" aria-label="Bloquear imagen"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path id="lockShackle" d="M8 11V7a4 4 0 0 1 7.5-2"/></svg></button>
-    </div>
     <div class="bar" id="zoomFineBar" hidden><input id="zoomFine" type="range" step="0.01" aria-label="Zoom"></div>
     <div class="bar zoom" id="zoomBar"></div>
     <div class="shutter">
-      <button class="round" id="photoBtn" title="Tomar foto" aria-label="Tomar foto" style="width:52px;height:52px"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
+      <button class="round big" id="photoBtn" title="Tomar foto" aria-label="Tomar foto"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
       <button id="rec" aria-label="Grabar"><span></span></button>
-      <span style="width:52px"></span>
+      <div class="dock">
+        <div class="panel closed" id="panel">
+          <button class="round" id="lockBtn" title="Bloquear" aria-label="Bloquear imagen"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path id="lockShackle" d="M8 11V7a4 4 0 0 1 7.5-2"/></svg></button>
+          <div class="vslider"><input id="opacity" type="range" min="0.05" max="1" step="0.01" value="0.5" aria-label="Transparencia"></div>
+          <button class="round" id="eyeBtn" title="Ocultar imagen" aria-label="Ocultar imagen"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+        <button class="round big" id="dockBtn" title="Imagen: transparencia y candado" aria-label="Transparencia y candado" aria-expanded="false" disabled>
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor" stroke="none"/></svg>
+        </button>
+      </div>
     </div>
   </div>
 </section>
@@ -221,7 +243,6 @@
     stream: null, track: null,
     hwZoom: null,          // {min, max} si la cámara deja hacer zoom de verdad
     zoom: 1,               // zoom mostrado
-    torch: false,
     source: null,          // canvas con la imagen original (reducida)
     crop: { x: 0, y: 0, w: 1, h: 1 },
     style: "original",
@@ -263,7 +284,6 @@
 
     const caps = state.track.getCapabilities?.() ?? {};
     if (caps.zoom && caps.zoom.max > caps.zoom.min) state.hwZoom = { min: caps.zoom.min, max: Math.min(caps.zoom.max, caps.zoom.min * 10) };
-    $("torchBtn").hidden = !caps.torch;
 
     $("intro").hidden = true; stage.hidden = false; ui.hidden = false;
     buildZoom(); applyZoom(1); keepAwake(); refreshUI();
@@ -307,13 +327,6 @@
       b.textContent = on ? b.dataset.z + "×" : b.dataset.z;
     }
   }
-
-  $("torchBtn").onclick = async () => {
-    state.torch = !state.torch;
-    try { await state.track.applyConstraints({ advanced: [{ torch: state.torch }] }); }
-    catch { state.torch = false; toast("La linterna no está disponible aquí"); }
-    $("torchBtn").classList.toggle("on", state.torch);
-  };
 
   // ---------- Imagen overlay ----------
   $("file").onchange = async (e) => {
@@ -383,6 +396,9 @@
     document.querySelectorAll(".needs-img").forEach((el) => (el.hidden = !has));
     overlay.hidden = !has || state.hidden;
     for (const id of ["cropBtn", "flipBtn", "resetBtn"]) $(id).disabled = state.locked;
+    $("dockBtn").disabled = !has;
+    $("dockBtn").classList.toggle("on", state.locked);
+    if (!has) setPanel(false);
     $("lockBtn").classList.toggle("on", state.locked);
     $("lockShackle").setAttribute("d", state.locked ? "M8 11V7a4 4 0 0 1 8 0v4" : "M8 11V7a4 4 0 0 1 7.5-2");
     $("eyeBtn").classList.toggle("on", state.hidden);
@@ -391,6 +407,12 @@
     $("opacity").disabled = state.hidden;
     for (const b of $("styleMenu").children) b.classList.toggle("on", b.dataset.style === state.style);
   }
+
+  function setPanel(open) {
+    $("panel").classList.toggle("closed", !open);
+    $("dockBtn").setAttribute("aria-expanded", open);
+  }
+  $("dockBtn").onclick = () => setPanel($("panel").classList.contains("closed"));
 
   $("opacity").value = load("opacity", 0.5);
   $("opacity").oninput = () => { applyTransform(); save("opacity", +$("opacity").value); };
