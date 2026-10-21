@@ -98,14 +98,9 @@
   .panel.closed > * { opacity: 0; transition-delay: 0s; }
   .panel .round { background: rgba(0,0,0,.18); box-shadow: none; border-color: rgba(255,255,255,.18); }
   .panel .round.on { background: rgba(255,148,77,.25); }
-  /* Barra de transparencia: una sola barra que se llena desde abajo, como en el Centro de control. */
-  .level { position: relative; width: 42px; height: 156px; border-radius: 15px; overflow: hidden; cursor: ns-resize; touch-action: none;
-           background: rgba(0,0,0,.28); box-shadow: inset 0 1px 3px rgba(0,0,0,.35); transition: opacity .25s var(--ease), transform .3s var(--spring); }
-  .level-fill { position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--v, .5) * 100%); background: rgba(255,255,255,.92); }
-  .level svg { position: absolute; left: 50%; bottom: 10px; width: 20px; height: 20px; transform: translateX(-50%); stroke: #6b6880; fill: none; stroke-width: 2; }
-  .level.dragging { transform: scaleX(1.08); }
-  .level.dim { opacity: .35; pointer-events: none; }
-  .level:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .vslider { position: relative; width: 42px; height: 150px; transition: opacity .25s var(--ease); }
+  .vslider input { position: absolute; left: 50%; top: 50%; width: 150px; margin: 0; transform: translate(-50%, -50%) rotate(-90deg); accent-color: var(--accent); }
+  .vslider.dim { opacity: .35; pointer-events: none; }
   .menu { position: relative; }
   .menu-list { position: absolute; top: 52px; left: 0; min-width: 190px; padding: 6px; border-radius: 16px; z-index: 5;
                transform-origin: top left; transition: opacity .2s var(--ease), transform .3s var(--spring); }
@@ -223,10 +218,7 @@
       <div class="dock">
         <div class="panel closed" id="panel">
           <button class="round" id="lockBtn" title="Bloquear" aria-label="Bloquear imagen"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path id="lockShackle" d="M8 11V7a4 4 0 0 1 7.5-2"/></svg></button>
-          <div class="level" id="opacity" role="slider" tabindex="0" aria-label="Transparencia de la imagen" aria-valuemin="5" aria-valuemax="100">
-            <div class="level-fill"></div>
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="#6b6880" stroke="none"/></svg>
-          </div>
+          <div class="vslider" id="opacityWrap"><input id="opacity" type="range" min="0.05" max="1" step="0.01" value="0.5" aria-label="Transparencia"></div>
           <button class="round" id="eyeBtn" title="Ocultar imagen" aria-label="Ocultar imagen"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
         </div>
         <button class="round big" id="dockBtn" title="Imagen: transparencia y candado" aria-label="Transparencia y candado" aria-expanded="false" disabled>
@@ -490,7 +482,7 @@
     $("eyeBtn").classList.toggle("on", state.hidden);
     $("flipBtn").classList.toggle("on", state.flip);
     $("styleBtn").classList.toggle("on", state.style !== "original");
-    $("opacity").classList.toggle("dim", state.hidden);
+    $("opacityWrap").classList.toggle("dim", state.hidden);
     for (const b of $("styleMenu").children) b.classList.toggle("on", b.dataset.style === state.style);
   }
 
@@ -500,34 +492,16 @@
   }
   $("dockBtn").onclick = () => setPanel($("panel").classList.contains("closed"));
 
-  // Barra de transparencia: arrastra hacia arriba o abajo desde cualquier punto.
-  const level = $("opacity");
+  // Transparencia: mientras se arrastra, la imagen cambia al instante (sin transición).
+  const opacityInput = $("opacity");
   function setOpacity(v) {
     state.opacity = Math.min(1, Math.max(0.05, v));
-    level.style.setProperty("--v", state.opacity);
-    level.setAttribute("aria-valuenow", Math.round(state.opacity * 100));
+    opacityInput.value = state.opacity;
     applyTransform();
   }
   setOpacity(load("opacity", 0.5));
-  const levelDrag = { id: null, y: 0, v: 0 };
-  level.addEventListener("pointerdown", (e) => {
-    try { level.setPointerCapture(e.pointerId); } catch {} level.classList.add("dragging"); overlay.classList.add("live");
-    Object.assign(levelDrag, { id: e.pointerId, y: e.clientY, v: state.opacity });
-  });
-  level.addEventListener("pointermove", (e) => {
-    if (e.pointerId !== levelDrag.id) return;
-    setOpacity(levelDrag.v - (e.clientY - levelDrag.y) / level.clientHeight);
-  });
-  const levelEnd = (e) => {
-    if (e.pointerId !== levelDrag.id) return;
-    levelDrag.id = null; level.classList.remove("dragging"); overlay.classList.remove("live"); save("opacity", state.opacity);
-  };
-  level.addEventListener("pointerup", levelEnd);
-  level.addEventListener("pointercancel", levelEnd);
-  level.addEventListener("keydown", (e) => {
-    const d = { ArrowUp: 0.05, ArrowRight: 0.05, ArrowDown: -0.05, ArrowLeft: -0.05 }[e.key];
-    if (d) { e.preventDefault(); setOpacity(state.opacity + d); save("opacity", state.opacity); }
-  });
+  opacityInput.addEventListener("input", () => { overlay.classList.add("live"); setOpacity(+opacityInput.value); });
+  opacityInput.addEventListener("change", () => { overlay.classList.remove("live"); save("opacity", state.opacity); });
 
   $("flipBtn").onclick = () => { easeOverlay(); state.flip = !state.flip; applyTransform(); refreshUI(); };
   $("resetBtn").onclick = resetTransform;
